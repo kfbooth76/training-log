@@ -128,36 +128,56 @@
 <script>
 /* ================= PLAN ================= */
 const PLAN = [
- {name:"Day 1 — Lower A", tag:"Strength", ex:[
+ {name:"Day 1 — Lower A", tag:"Strength", variants:[
+  {vn:"Squat focus", ex:[
    {n:"Back squat", rx:"4×5 @RPE8", sets:4, reps:"5", rest:150},
    {n:"Romanian deadlift", rx:"3×8", sets:3, reps:"8", rest:120},
    {n:"Bulgarian split squat", rx:"3×10/leg", sets:3, reps:"10", rest:90},
    {n:"Leg curl (band/cable)", rx:"3×12", sets:3, reps:"12", rest:60},
    {n:"Standing calf raise", rx:"4×12", sets:4, reps:"12", rest:60},
    {n:"Hanging leg raise", rx:"3×12", sets:3, reps:"12", rest:60}],
-  fin:"Finisher · 10 min bike/rower — 30s hard / 60s easy"},
- {name:"Day 2 — Upper A", tag:"Strength", ex:[
+   fin:"Finisher · 10 min bike/rower — 30s hard / 60s easy"},
+  {vn:"Posterior chain", ex:[
+   {n:"Barbell hip thrust", rx:"4×8 @RPE8", sets:4, reps:"8", rest:150},
+   {n:"Good morning", rx:"3×8", sets:3, reps:"8", rest:120},
+   {n:"Reverse lunge", rx:"3×10/leg", sets:3, reps:"10", rest:90},
+   {n:"Single-leg RDL (DBs)", rx:"3×10/leg", sets:3, reps:"10", rest:60},
+   {n:"Seated calf raise", rx:"4×15", sets:4, reps:"15", rest:60},
+   {n:"Ab wheel / weighted plank", rx:"3×10", sets:3, reps:"10", rest:60}],
+   fin:"Finisher · 8 min — 30s DB swings / 30s rest"},
+  {vn:"Unilateral", ex:[
+   {n:"Front squat", rx:"4×6 @RPE8", sets:4, reps:"6", rest:150},
+   {n:"Box step-up (DBs)", rx:"3×8/leg", sets:3, reps:"8", rest:120},
+   {n:"Lateral lunge", rx:"3×10/leg", sets:3, reps:"10", rest:90},
+   {n:"Nordic curl / band leg curl", rx:"3×10", sets:3, reps:"10", rest:60},
+   {n:"Standing calf raise", rx:"4×15", sets:4, reps:"15", rest:60},
+   {n:"Hanging knee raise", rx:"3×15", sets:3, reps:"15", rest:60}],
+   fin:"Finisher · 10 min bike/rower — 40s hard / 80s easy"}]},
+ {name:"Day 2 — Upper A", tag:"Strength", variants:[
+  {vn:"", ex:[
    {n:"Bench press", rx:"4×5 @RPE8", sets:4, reps:"5", rest:150},
    {n:"Weighted pull-up / lat pulldown", rx:"4×6–8", sets:4, reps:"6-8", rest:120},
    {n:"Overhead press", rx:"3×8", sets:3, reps:"8", rest:120},
    {n:"Barbell row", rx:"3×10", sets:3, reps:"10", rest:90},
    {n:"DB curl + pressdown (superset)", rx:"3×12 each", sets:3, reps:"12", rest:60}],
-  fin:"Finisher · 8-min EMOM — 10 DB swings + 6 push-ups"},
- {name:"Day 3 — Lower B", tag:"Density", ex:[
+   fin:"Finisher · 8-min EMOM — 10 DB swings + 6 push-ups"}]},
+ {name:"Day 3 — Lower B", tag:"Density", variants:[
+  {vn:"", ex:[
    {n:"Deadlift", rx:"4×4 @RPE7–8", sets:4, reps:"4", rest:150},
    {n:"Front squat", rx:"3×8–10", sets:3, reps:"8-10", rest:120},
    {n:"Walking lunge", rx:"3×12/leg", sets:3, reps:"12", rest:90},
    {n:"Cable pull-through / hip thrust", rx:"3×12", sets:3, reps:"12", rest:60},
    {n:"Pallof press", rx:"3×10/side", sets:3, reps:"10", rest:45}],
-  fin:"Finisher · 12 min steady-hard bike/rower (RPE 7)"},
- {name:"Day 4 — Upper B", tag:"Density", ex:[
+   fin:"Finisher · 12 min steady-hard bike/rower (RPE 7)"}]},
+ {name:"Day 4 — Upper B", tag:"Density", variants:[
+  {vn:"", ex:[
    {n:"Incline DB press", rx:"4×8–10", sets:4, reps:"8-10", rest:90},
    {n:"Chest-supported DB row", rx:"4×10", sets:4, reps:"10", rest:90},
    {n:"Seated DB shoulder press", rx:"3×10–12", sets:3, reps:"10-12", rest:90},
    {n:"Pull-up (AMRAP)", rx:"3×AMRAP", sets:3, reps:"max", rest:90},
    {n:"Lateral raise + face pull (superset)", rx:"3×15 each", sets:3, reps:"15", rest:60},
    {n:"Curl + overhead ext (superset)", rx:"3×12 each", sets:3, reps:"12", rest:60}],
-  fin:"Finisher · 10-min AMRAP — 10 goblet squats · 8 push-ups · 6 inverted rows"}
+   fin:"Finisher · 10-min AMRAP — 10 goblet squats · 8 push-ups · 6 inverted rows"}]}
 ];
 
 /* ================= STATE ================= */
@@ -255,27 +275,31 @@ function renderToday(){
       <h2>Up next</h2>
       <p><b>${PLAN[nd].name}</b> <span class="muted small">· ${PLAN[nd].tag}</span></p>
       ${doneToday?'<p class="small muted" style="margin-top:6px">Already trained today — rest up or bank some steps.</p>':''}
-      <div class="row" style="margin-top:12px">
-        <button class="primary" onclick="startWorkout(${nd})">Start workout</button>
-        <button onclick="show('workout')">Pick a different day</button>
-      </div>
+      ${PLAN[nd].variants.length>1
+        ? `<p class="small muted" style="margin-top:8px">Pick today's flavor:</p>
+           <div class="row" style="margin-top:8px;flex-wrap:wrap">`+
+           PLAN[nd].variants.map((vt,j)=>`<button class="${j===0?'primary':''}" onclick="startWorkout(${nd},${j})">${vt.vn}</button>`).join('')+
+           `</div><div class="row" style="margin-top:8px"><button class="ghost" onclick="show('workout')">Other days</button></div>`
+        : `<div class="row" style="margin-top:12px">
+             <button class="primary" onclick="startWorkout(${nd},0)">Start workout</button>
+             <button onclick="show('workout')">Pick a different day</button>
+           </div>`}
     </div>`;
 }
 
 /* ================= WORKOUT ================= */
-function lastLogFor(dayIdx, exName){
+function lastLogFor(exName){
   for(let i=DB.workouts.length-1;i>=0;i--){
-    const w=DB.workouts[i];
-    if(w.day!==dayIdx) continue;
-    const e=w.ex.find(e=>e.n===exName);
-    if(e){ const done=e.sets.filter(s=>s.done); if(done.length) return {date:w.date, sets:done}; }
+    const e=DB.workouts[i].ex.find(e=>e.n===exName);
+    if(e){ const done=e.sets.filter(s=>s.done); if(done.length) return {date:DB.workouts[i].date, sets:done}; }
   }
   return null;
 }
-function startWorkout(dayIdx){
-  const p=PLAN[dayIdx];
-  active={date:todayStr(), day:dayIdx, ex:p.ex.map(e=>{
-    const last=lastLogFor(dayIdx,e.n);
+function startWorkout(dayIdx, varIdx){
+  varIdx=varIdx||0;
+  const vt=PLAN[dayIdx].variants[varIdx];
+  active={date:todayStr(), day:dayIdx, vn:vt.vn, fin:vt.fin, ex:vt.ex.map(e=>{
+    const last=lastLogFor(e.n);
     return {n:e.n, rest:e.rest, rx:e.rx,
       sets:Array.from({length:e.sets},(_,i)=>({
         w:last&&last.sets[i]?last.sets[i].w:'', r:last&&last.sets[i]?last.sets[i].r:'', done:false}))};
@@ -285,18 +309,23 @@ function startWorkout(dayIdx){
 function renderWorkout(){
   const v=$('view-workout');
   if(!active){
-    v.innerHTML=`<div class="card"><h2>Start a session</h2><div class="day-pick">`+
-      PLAN.map((p,i)=>`<button onclick="startWorkout(${i})"><b>${p.name}</b><span class="sub">${p.tag} · ${p.ex.length} exercises</span></button>`).join('')+
+    v.innerHTML=`<div class="card"><h2>Start a session</h2>
+      <p class="small muted" style="margin-bottom:10px">Day 1 has three interchangeable options — pick whichever fits how you feel. They all count the same toward your week.</p>
+      <div class="day-pick">`+
+      PLAN.flatMap((p,i)=>p.variants.map((vt,j)=>{
+        const label=vt.vn? p.name.split('—')[0].trim()+' · '+vt.vn : p.name;
+        return `<button onclick="startWorkout(${i},${j})"><b>${label}</b><span class="sub">${p.tag} · ${vt.ex.length} exercises</span></button>`;
+      })).join('')+
       `</div></div>`;
     return;
   }
   const p=PLAN[active.day];
   v.innerHTML = `
-    <div class="card"><h2>${p.name}</h2><p class="small muted">Log weight × reps, tap ✓ per set. Weights prefill from your last ${p.name.split('—')[0].trim()} session.</p></div>`+
+    <div class="card"><h2>${p.name}${active.vn?' · '+active.vn:''}</h2><p class="small muted">Log weight × reps, tap ✓ per set. Weights prefill from the last time you did each exercise.</p></div>`+
     active.ex.map((e,ei)=>`
     <div class="ex">
       <div class="ex-head"><b>${e.n}</b><span class="rx">${e.rx}</span></div>
-      ${(l=>l?`<div class="lastlog">Last time (${fmtDate(l.date)}): ${l.sets.map(s=>`${s.w||'–'}×${s.r||'–'}`).join(', ')}</div>`:'')(lastLogFor(active.day,e.n))}
+      ${(l=>l?`<div class="lastlog">Last time (${fmtDate(l.date)}): ${l.sets.map(s=>`${s.w||'–'}×${s.r||'–'}`).join(', ')}</div>`:'')(lastLogFor(e.n))}
       <div class="sets">
         ${e.sets.map((s,si)=>`
         <div class="setline">
@@ -309,7 +338,7 @@ function renderWorkout(){
         </div>`).join('')}
       </div>
     </div>`).join('')+
-    `<div class="ex finisher-card"><b style="font-size:.9rem;color:var(--accent2)">${p.fin}</b>
+    `<div class="ex finisher-card"><b style="font-size:.9rem;color:var(--accent2)">${active.fin}</b>
       <div class="row" style="margin-top:10px">
         <button class="rest-btn" style="margin-left:0" onclick="startTimer(600,'Finisher')">⏱ Start 10:00</button>
       </div></div>
@@ -416,7 +445,7 @@ function renderHistory(){
       return d.length?`${e.n.split('(')[0].trim()} ${d[d.length-1].w}×${d[d.length-1].r}`:null;
     }).filter(Boolean).join(' · ');
     return `<div class="card"><div class="row" style="justify-content:space-between">
-      <b>${PLAN[w.day].name}</b><span class="muted small">${fmtDate(w.date)}</span></div>
+      <b>${PLAN[w.day].name}${w.vn?' · '+w.vn:''}</b><span class="muted small">${fmtDate(w.date)}</span></div>
       <p class="small muted" style="margin-top:4px">${sets} sets done${top?' · '+top:''}</p></div>`;
   }).join('');
   $('view-history').innerHTML=items;
