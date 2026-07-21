@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0f1115">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training Log">
+<title>Klayton's Training Log</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#1e222b; --line:#2a2f3a;
+    --text:#e8eaf0; --muted:#9aa3b2; --accent:#4fd1a5; --accent2:#f6ad55;
+    --danger:#fc8181; --accent-dim:#2a4a3f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;padding-bottom:120px}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 14px}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  h1{font-size:1.25rem;letter-spacing:-.01em}
+  .data-btns{display:flex;gap:8px}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;
+    font-size:.85rem;font-weight:600;padding:8px 14px;background:var(--card2);
+    color:var(--text);border:1px solid var(--line)}
+  button.primary{background:var(--accent);color:#0c2018;border-color:var(--accent)}
+  button.warn{background:var(--accent2);color:#2b1a05;border-color:var(--accent2)}
+  button.ghost{background:transparent}
+  button:active{transform:translateY(1px)}
+  nav{display:flex;gap:6px;margin-bottom:18px;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:5px}
+  nav button{flex:1;background:transparent;border:none;color:var(--muted);padding:9px 4px}
+  nav button.active{background:var(--card2);color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin-bottom:12px}
+  h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:10px}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px 12px;text-align:center}
+  .stat .num{font-size:1.5rem;font-weight:700;color:var(--accent)}
+  .stat .num.warn{color:var(--accent2)}
+  .stat .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+  .muted{color:var(--muted)} .small{font-size:.82rem}
+  .week-dots{display:flex;gap:8px;margin-top:8px}
+  .dot{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--muted)}
+  .dot.done{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:700}
+  .day-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .day-pick button{padding:16px 10px;text-align:left;border-radius:12px;font-size:.9rem}
+  .day-pick .sub{display:block;font-weight:400;color:var(--muted);font-size:.75rem;margin-top:3px}
+  .ex{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:var(--card)}
+  .ex-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .ex-head b{font-size:.95rem}
+  .ex-head .rx{font-size:.75rem;color:var(--accent2);white-space:nowrap}
+  .lastlog{font-size:.75rem;color:var(--muted);margin-top:2px}
+  .sets{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .setline{display:flex;align-items:center;gap:8px}
+  .setline .n{width:20px;font-size:.75rem;color:var(--muted)}
+  .setline input{width:72px;background:var(--card2);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);padding:7px 8px;font-size:.9rem;text-align:center}
+  .setline input:focus{outline:1px solid var(--accent)}
+  .setline .x{color:var(--muted);font-size:.8rem}
+  .chk{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);
+    background:var(--card2);color:transparent;font-size:.9rem;padding:0;flex-shrink:0}
+  .chk.on{background:var(--accent);border-color:var(--accent);color:#0c2018}
+  .rest-btn{margin-left:auto;font-size:.72rem;padding:6px 10px;color:var(--muted)}
+  .finisher-card{border-left:3px solid var(--accent2)}
+  #timerbar{position:fixed;left:0;right:0;bottom:0;background:var(--card2);
+    border-top:1px solid var(--line);padding:12px 16px;display:none;z-index:50}
+  #timerbar.show{display:flex;align-items:center;gap:14px;max-width:760px;margin:0 auto;
+    border-radius:14px 14px 0 0}
+  #timerbar .t{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+  #timerbar.done-flash .t{color:var(--accent2)}
+  input.wide{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);padding:10px 12px;font-size:.95rem}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
+  th{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+  tr:last-child td{border-bottom:none}
+  .banner{background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent);
+    border-radius:10px;padding:10px 14px;font-size:.85rem;margin-bottom:12px;display:none}
+  .banner.warn{background:#3a2c14;border-color:var(--accent2);color:var(--accent2)}
+  .banner.show{display:block}
+  .row{display:flex;gap:8px;align-items:center}
+  .spark{width:100%;height:56px;margin-top:8px}
+  .del{color:var(--danger);background:transparent;border:none;font-size:.8rem;padding:2px 6px}
+  footer{margin-top:22px;text-align:center;color:var(--muted);font-size:.72rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Training Log</h1>
+    <div class="data-btns">
+      <button class="ghost" onclick="importData()">Import</button>
+      <button class="warn" onclick="exportData()">Save data</button>
+    </div>
+  </header>
+
+  <div id="savebanner" class="banner warn">Heads up: this app keeps data in the page only. Hit <b>Save data</b> when you're done — it downloads a small file. Next time, hit <b>Import</b> and pick that file to restore everything.</div>
+  <div id="okbanner" class="banner"></div>
+
+  <nav>
+    <button id="tab-today" class="active" onclick="show('today')">Today</button>
+    <button id="tab-workout" onclick="show('workout')">Workout</button>
+    <button id="tab-weight" onclick="show('weight')">Weight</button>
+    <button id="tab-history" onclick="show('history')">History</button>
+  </nav>
+
+  <div id="view-today"></div>
+  <div id="view-workout" style="display:none"></div>
+  <div id="view-weight" style="display:none"></div>
+  <div id="view-history" style="display:none"></div>
+
+  <footer>4-day upper/lower · fat-loss block · deload after week 8</footer>
+</div>
+
+<div id="timerbar">
+  <span class="t" id="timer-t">0:00</span>
+  <span class="muted small" id="timer-lbl">Rest</span>
+  <button style="margin-left:auto" onclick="stopTimer()">Dismiss</button>
+</div>
+
+<input type="file" id="filein" accept=".json" style="display:none">
+
+<script>
+/* ================= PLAN ================= */
+const PLAN = [
+ {name:"Day 1 — Lower A", tag:"Strength", ex:[
+   {n:"Back squat", rx:"4×5 @RPE8", sets:4, reps:"5", rest:150},
+   {n:"Romanian deadlift", rx:"3×8", sets:3, reps:"8", rest:120},
+   {n:"Bulgarian split squat", rx:"3×10/leg", sets:3, reps:"10", rest:90},
+   {n:"Leg curl (band/cable)", rx:"3×12", sets:3, reps:"12", rest:60},
+   {n:"Standing calf raise", rx:"4×12", sets:4, reps:"12", rest:60},
+   {n:"Hanging leg raise", rx:"3×12", sets:3, reps:"12", rest:60}],
+  fin:"Finisher · 10 min bike/rower — 30s hard / 60s easy"},
+ {name:"Day 2 — Upper A", tag:"Strength", ex:[
+   {n:"Bench press", rx:"4×5 @RPE8", sets:4, reps:"5", rest:150},
+   {n:"Weighted pull-up / lat pulldown", rx:"4×6–8", sets:4, reps:"6-8", rest:120},
+   {n:"Overhead press", rx:"3×8", sets:3, reps:"8", rest:120},
+   {n:"Barbell row", rx:"3×10", sets:3, reps:"10", rest:90},
+   {n:"DB curl + pressdown (superset)", rx:"3×12 each", sets:3, reps:"12", rest:60}],
+  fin:"Finisher · 8-min EMOM — 10 DB swings + 6 push-ups"},
+ {name:"Day 3 — Lower B", tag:"Density", ex:[
+   {n:"Deadlift", rx:"4×4 @RPE7–8", sets:4, reps:"4", rest:150},
+   {n:"Front squat", rx:"3×8–10", sets:3, reps:"8-10", rest:120},
+   {n:"Walking lunge", rx:"3×12/leg", sets:3, reps:"12", rest:90},
+   {n:"Cable pull-through / hip thrust", rx:"3×12", sets:3, reps:"12", rest:60},
+   {n:"Pallof press", rx:"3×10/side", sets:3, reps:"10", rest:45}],
+  fin:"Finisher · 12 min steady-hard bike/rower (RPE 7)"},
+ {name:"Day 4 — Upper B", tag:"Density", ex:[
+   {n:"Incline DB press", rx:"4×8–10", sets:4, reps:"8-10", rest:90},
+   {n:"Chest-supported DB row", rx:"4×10", sets:4, reps:"10", rest:90},
+   {n:"Seated DB shoulder press", rx:"3×10–12", sets:3, reps:"10-12", rest:90},
+   {n:"Pull-up (AMRAP)", rx:"3×AMRAP", sets:3, reps:"max", rest:90},
+   {n:"Lateral raise + face pull (superset)", rx:"3×15 each", sets:3, reps:"15", rest:60},
+   {n:"Curl + overhead ext (superset)", rx:"3×12 each", sets:3, reps:"12", rest:60}],
+  fin:"Finisher · 10-min AMRAP — 10 goblet squats · 8 push-ups · 6 inverted rows"}
+];
+
+/* ================= STATE ================= */
+let DB = { workouts:[], weights:[], version:1 };   // workouts: {date, day, ex:[{n, sets:[{w,r,done}]}]}
+let active = null;                                  // in-progress workout
+let dirty = false;
+
+/* ---- storage: auto-save via localStorage when available (hosted/browser),
+        graceful fallback to manual export/import elsewhere ---- */
+const LS_KEY='training-log-v1';
+let hasLS=false;
+try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); hasLS=true; }catch(e){}
+function persist(){
+  dirty=true;
+  if(hasLS){ try{ localStorage.setItem(LS_KEY,JSON.stringify(DB)); dirty=false; }catch(e){} }
+}
+function restore(){
+  if(!hasLS) return;
+  try{ const d=JSON.parse(localStorage.getItem(LS_KEY)||'null');
+    if(d&&Array.isArray(d.workouts)&&Array.isArray(d.weights)) DB=d;
+  }catch(e){}
+}
+
+const $ = id => document.getElementById(id);
+const todayStr = () => new Date().toISOString().slice(0,10);
+const fmtDate = d => new Date(d+"T12:00:00").toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+
+function mondayOf(d){ const x=new Date(d+"T12:00:00"); const dow=(x.getDay()+6)%7; x.setDate(x.getDate()-dow); return x.toISOString().slice(0,10); }
+
+/* ================= NAV ================= */
+function show(v){
+  ['today','workout','weight','history'].forEach(k=>{
+    $('view-'+k).style.display = k===v?'block':'none';
+    $('tab-'+k).classList.toggle('active',k===v);
+  });
+  render(v);
+}
+function render(v){
+  if(v==='today') renderToday();
+  if(v==='workout') renderWorkout();
+  if(v==='weight') renderWeight();
+  if(v==='history') renderHistory();
+}
+
+/* ================= TODAY / DASHBOARD ================= */
+function weekCount(monday){ return DB.workouts.filter(w=>mondayOf(w.date)===monday).length; }
+function streakWeeks(){
+  let s=0, m=mondayOf(todayStr());
+  // current week counts if already at 4; otherwise start from last week
+  if(weekCount(m)>=4) s++;
+  let d=new Date(m+"T12:00:00");
+  while(true){
+    d.setDate(d.getDate()-7);
+    const mm=d.toISOString().slice(0,10);
+    if(weekCount(mm)>=4) s++; else break;
+    if(s>500) break;
+  }
+  return s;
+}
+function weeklyAvg(days){ // avg of weights in last `days` days
+  const cut=new Date(); cut.setDate(cut.getDate()-days);
+  const ws=DB.weights.filter(w=>new Date(w.date+"T12:00:00")>=cut).map(w=>w.lbs);
+  return ws.length? (ws.reduce((a,b)=>a+b,0)/ws.length) : null;
+}
+function nextDayIdx(){
+  if(!DB.workouts.length) return 0;
+  const last=DB.workouts[DB.workouts.length-1];
+  return (last.day+1)%4;
+}
+function renderToday(){
+  const m=mondayOf(todayStr()), cnt=weekCount(m), streak=streakWeeks();
+  const avgNow=weeklyAvg(7), avgPrev=(()=>{ // previous 7-day window
+    const a=new Date(); a.setDate(a.getDate()-14);
+    const b=new Date(); b.setDate(b.getDate()-7);
+    const ws=DB.weights.filter(w=>{const d=new Date(w.date+"T12:00:00");return d>=a&&d<b;}).map(w=>w.lbs);
+    return ws.length? ws.reduce((x,y)=>x+y,0)/ws.length : null;
+  })();
+  let trend='—';
+  if(avgNow!=null&&avgPrev!=null){ const d=avgNow-avgPrev; trend=(d<=0?'':'+')+d.toFixed(1)+' lb/wk'; }
+  const dots=[0,1,2,3].map(i=>`<div class="dot ${i<cnt?'done':''}">${i<cnt?'✓':(i+1)}</div>`).join('');
+  const nd=nextDayIdx();
+  const doneToday = DB.workouts.some(w=>w.date===todayStr());
+  $('view-today').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="num">${cnt}<span class="muted" style="font-size:.9rem">/4</span></div><div class="lbl">This week</div></div>
+      <div class="stat"><div class="num ${streak?'':'warn'}">${streak}</div><div class="lbl">Week streak</div></div>
+      <div class="stat"><div class="num warn">${avgNow!=null?avgNow.toFixed(1):'—'}</div><div class="lbl">7-day avg lb</div></div>
+    </div>
+    <div class="card">
+      <h2>This week</h2>
+      <div class="week-dots">${dots}</div>
+      <p class="small muted" style="margin-top:10px">${cnt>=4?"Week complete. That's how streaks are built.":`${4-cnt} session${4-cnt>1?'s':''} to go. Weight trend: ${trend}.`}</p>
+    </div>
+    <div class="card">
+      <h2>Up next</h2>
+      <p><b>${PLAN[nd].name}</b> <span class="muted small">· ${PLAN[nd].tag}</span></p>
+      ${doneToday?'<p class="small muted" style="margin-top:6px">Already trained today — rest up or bank some steps.</p>':''}
+      <div class="row" style="margin-top:12px">
+        <button class="primary" onclick="startWorkout(${nd})">Start workout</button>
+        <button onclick="show('workout')">Pick a different day</button>
+      </div>
+    </div>`;
+}
+
+/* ================= WORKOUT ================= */
+function lastLogFor(dayIdx, exName){
+  for(let i=DB.workouts.length-1;i>=0;i--){
+    const w=DB.workouts[i];
+    if(w.day!==dayIdx) continue;
+    const e=w.ex.find(e=>e.n===exName);
+    if(e){ const done=e.sets.filter(s=>s.done); if(done.length) return {date:w.date, sets:done}; }
+  }
+  return null;
+}
+function startWorkout(dayIdx){
+  const p=PLAN[dayIdx];
+  active={date:todayStr(), day:dayIdx, ex:p.ex.map(e=>{
+    const last=lastLogFor(dayIdx,e.n);
+    return {n:e.n, rest:e.rest, rx:e.rx,
+      sets:Array.from({length:e.sets},(_,i)=>({
+        w:last&&last.sets[i]?last.sets[i].w:'', r:last&&last.sets[i]?last.sets[i].r:'', done:false}))};
+  })};
+  show('workout');
+}
+function renderWorkout(){
+  const v=$('view-workout');
+  if(!active){
+    v.innerHTML=`<div class="card"><h2>Start a session</h2><div class="day-pick">`+
+      PLAN.map((p,i)=>`<button onclick="startWorkout(${i})"><b>${p.name}</b><span class="sub">${p.tag} · ${p.ex.length} exercises</span></button>`).join('')+
+      `</div></div>`;
+    return;
+  }
+  const p=PLAN[active.day];
+  v.innerHTML = `
+    <div class="card"><h2>${p.name}</h2><p class="small muted">Log weight × reps, tap ✓ per set. Weights prefill from your last ${p.name.split('—')[0].trim()} session.</p></div>`+
+    active.ex.map((e,ei)=>`
+    <div class="ex">
+      <div class="ex-head"><b>${e.n}</b><span class="rx">${e.rx}</span></div>
+      ${(l=>l?`<div class="lastlog">Last time (${fmtDate(l.date)}): ${l.sets.map(s=>`${s.w||'–'}×${s.r||'–'}`).join(', ')}</div>`:'')(lastLogFor(active.day,e.n))}
+      <div class="sets">
+        ${e.sets.map((s,si)=>`
+        <div class="setline">
+          <span class="n">${si+1}</span>
+          <input inputmode="decimal" placeholder="lb" value="${s.w}" onchange="setVal(${ei},${si},'w',this.value)">
+          <span class="x">×</span>
+          <input inputmode="numeric" placeholder="reps" value="${s.r}" onchange="setVal(${ei},${si},'r',this.value)">
+          <button class="chk ${s.done?'on':''}" onclick="toggleSet(${ei},${si})">✓</button>
+          ${si===0?`<button class="rest-btn" onclick="startTimer(${e.rest},'${e.n.replace(/'/g,"\\'")}')">⏱ ${e.rest>=60?Math.floor(e.rest/60)+':'+String(e.rest%60).padStart(2,'0'):e.rest+'s'}</button>`:''}
+        </div>`).join('')}
+      </div>
+    </div>`).join('')+
+    `<div class="ex finisher-card"><b style="font-size:.9rem;color:var(--accent2)">${p.fin}</b>
+      <div class="row" style="margin-top:10px">
+        <button class="rest-btn" style="margin-left:0" onclick="startTimer(600,'Finisher')">⏱ Start 10:00</button>
+      </div></div>
+    <div class="row" style="margin-top:16px">
+      <button class="primary" onclick="finishWorkout()">Finish &amp; log workout</button>
+      <button class="ghost" onclick="if(confirm('Discard this session?')){active=null;renderWorkout()}">Discard</button>
+    </div>`;
+}
+function setVal(ei,si,k,v){ active.ex[ei].sets[si][k]=v; }
+function toggleSet(ei,si){
+  const s=active.ex[ei].sets[si]; s.done=!s.done;
+  renderWorkout();
+  if(s.done) startTimer(active.ex[ei].rest, active.ex[ei].n);
+}
+function finishWorkout(){
+  const doneSets=active.ex.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0);
+  if(!doneSets && !confirm("No sets checked off — log it anyway?")) return;
+  DB.workouts.push(active); DB.workouts.sort((a,b)=>a.date<b.date?-1:1);
+  active=null; persist();
+  flashOk(hasLS?"Workout logged — saved on this device.":"Workout logged. Don't forget to hit Save data before you close this.");
+  show('today');
+}
+
+/* ================= TIMER ================= */
+let timerId=null, timerEnd=0;
+function startTimer(sec,label){
+  clearInterval(timerId);
+  timerEnd=Date.now()+sec*1000;
+  $('timerbar').classList.add('show'); $('timerbar').classList.remove('done-flash');
+  $('timer-lbl').textContent='Rest · '+label;
+  tick();
+  timerId=setInterval(tick,250);
+}
+function tick(){
+  const left=Math.max(0,Math.round((timerEnd-Date.now())/1000));
+  $('timer-t').textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');
+  if(left<=0){
+    clearInterval(timerId);
+    $('timer-lbl').textContent='Time — next set';
+    $('timerbar').classList.add('done-flash');
+    try{ // audible beep
+      const ctx=new (window.AudioContext||window.webkitAudioContext)();
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=.15;
+      o.start();setTimeout(()=>{o.stop();ctx.close()},350);
+    }catch(e){}
+  }
+}
+function stopTimer(){ clearInterval(timerId); $('timerbar').classList.remove('show'); }
+
+/* ================= WEIGHT ================= */
+function renderWeight(){
+  const avg=weeklyAvg(7);
+  const rows=[...DB.weights].sort((a,b)=>a.date<b.date?1:-1).slice(0,14).map(w=>
+    `<tr><td>${fmtDate(w.date)}</td><td>${w.lbs.toFixed(1)}</td>
+     <td><button class="del" onclick="delWeight('${w.date}')">✕</button></td></tr>`).join('');
+  $('view-weight').innerHTML=`
+    <div class="card">
+      <h2>Log today's weigh-in</h2>
+      <div class="row">
+        <input class="wide" id="win" inputmode="decimal" placeholder="Body weight (lb)">
+        <button class="primary" onclick="addWeight()">Log</button>
+      </div>
+      <p class="small muted" style="margin-top:8px">Weigh in first thing, same conditions daily. Judge by the 7-day average — not the daily number.</p>
+    </div>
+    <div class="card">
+      <h2>Trend</h2>
+      <p><b>7-day avg:</b> ${avg!=null?avg.toFixed(1)+' lb':'— log a few days first'}</p>
+      ${spark()}
+    </div>
+    ${rows?`<div class="card"><h2>Recent</h2><table><tr><th>Date</th><th>lb</th><th></th></tr>${rows}</table></div>`:''}`;
+}
+function addWeight(){
+  const v=parseFloat($('win').value);
+  if(!v||v<50||v>1000){ alert('Enter a weight in pounds'); return; }
+  DB.weights=DB.weights.filter(w=>w.date!==todayStr());
+  DB.weights.push({date:todayStr(),lbs:v});
+  DB.weights.sort((a,b)=>a.date<b.date?-1:1);
+  persist(); renderWeight();
+}
+function delWeight(d){ DB.weights=DB.weights.filter(w=>w.date!==d); persist(); renderWeight(); }
+function spark(){
+  const ws=[...DB.weights].sort((a,b)=>a.date<b.date?-1:1).slice(-30);
+  if(ws.length<2) return '';
+  const min=Math.min(...ws.map(w=>w.lbs)), max=Math.max(...ws.map(w=>w.lbs));
+  const pad=(max-min)*0.15||1;
+  const y=v=>52-((v-(min-pad))/((max+pad)-(min-pad)))*48;
+  const x=i=>4+(i/(ws.length-1))*(700-8);
+  const pts=ws.map((w,i)=>`${x(i)},${y(w.lbs)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 700 56" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="#f6ad55" stroke-width="2"/>
+    <circle cx="${x(ws.length-1)}" cy="${y(ws[ws.length-1].lbs)}" r="3" fill="#f6ad55"/></svg>`;
+}
+
+/* ================= HISTORY ================= */
+function renderHistory(){
+  if(!DB.workouts.length){
+    $('view-history').innerHTML='<div class="card"><p class="muted">No workouts logged yet. First one starts the streak.</p></div>'; return;
+  }
+  const items=[...DB.workouts].sort((a,b)=>a.date<b.date?1:-1).map((w,ri)=>{
+    const sets=w.ex.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0);
+    const top=w.ex.slice(0,3).map(e=>{
+      const d=e.sets.filter(s=>s.done&&s.w);
+      return d.length?`${e.n.split('(')[0].trim()} ${d[d.length-1].w}×${d[d.length-1].r}`:null;
+    }).filter(Boolean).join(' · ');
+    return `<div class="card"><div class="row" style="justify-content:space-between">
+      <b>${PLAN[w.day].name}</b><span class="muted small">${fmtDate(w.date)}</span></div>
+      <p class="small muted" style="margin-top:4px">${sets} sets done${top?' · '+top:''}</p></div>`;
+  }).join('');
+  $('view-history').innerHTML=items;
+}
+
+/* ================= DATA ================= */
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='training-log-'+todayStr()+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  dirty=false;
+  flashOk('Saved. Keep that file — Import it next session to pick up where you left off.');
+}
+function importData(){ $('filein').click(); }
+$('filein').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+      const d=JSON.parse(r.result);
+      if(!Array.isArray(d.workouts)||!Array.isArray(d.weights)) throw 0;
+      DB=d; persist(); dirty=false; flashOk('Data restored — '+DB.workouts.length+' workouts, '+DB.weights.length+' weigh-ins.');
+      show('today');
+    }catch(err){ alert('That file doesn\'t look like a training log export.'); }
+  };
+  r.readAsText(f); e.target.value='';
+});
+function flashOk(msg){
+  const b=$('okbanner'); b.textContent=msg; b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),6000);
+}
+window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+
+/* ================= INIT ================= */
+restore();
+if(hasLS){
+  const b=$('savebanner');
+  b.innerHTML='Data saves automatically on this device. Use <b>Save data</b> for an occasional backup file.';
+  b.classList.remove('warn'); b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),8000);
+}else{
+  $('savebanner').classList.add('show');
+  setTimeout(()=>$('savebanner').classList.remove('show'),15000);
+}
+show('today');
+</script>
+</body>
+</html>
